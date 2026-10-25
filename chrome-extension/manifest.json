@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Task Island — ChatGPT Tracker",
+  "description": "Send ChatGPT webpage response status to your local Task Island window. No cloud service.",
+  "version": "0.3.1",
+  "minimum_chrome_version": "116",
+  "permissions": [],
+  "host_permissions": ["http://127.0.0.1:47839/*"],
+  "background": {"service_worker": "background.js"},
+  "action": {"default_title": "Task Island", "default_popup": "popup.html"},
+  "content_scripts": [
+    {"matches": ["https://chatgpt.com/*"], "js": ["content.js"], "run_at": "document_idle"}
+  ]
+}

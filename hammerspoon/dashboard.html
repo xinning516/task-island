@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+:root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+ --white:#f4f7fb;--muted:#9ba3b4;--blue:#82a9fa;--green:#78ddb0;--amber:#ffd184;--red:#ff8a99}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;color:var(--white);user-select:none;-webkit-user-select:none}
+#shell{width:100%;height:100%;padding:3px}
+.island{width:100%;height:100%;background:rgba(8,10,14,var(--island-opacity,.978));border:1px solid rgba(255,255,255,.13);
+ box-shadow:0 7px 22px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.075);overflow:hidden}
+.pill{border-radius:999px;display:flex;align-items:center;gap:8px;padding:0 11px;cursor:pointer;white-space:nowrap}
+.pill:hover{border-color:rgba(255,255,255,.24);background:rgba(16,20,28,var(--island-opacity,.978))}
+.pulse{width:7px;height:7px;border-radius:100%;flex-shrink:0;background:#727986}
+.pulse.running{background:var(--blue);box-shadow:0 0 10px rgba(130,169,250,.65);animation:breathing 1.45s ease-in-out infinite}
+.pulse.waiting{background:var(--amber)}.pulse.error{background:var(--red)}.pulse.done{background:var(--green)}
+.pill-label{font-size:11px;letter-spacing:.05px;font-weight:680;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.sources{display:flex;gap:3px;align-items:center;flex-shrink:0}
+.source{display:grid;place-items:center;font-weight:750;font-size:8px;width:18px;height:18px;border-radius:7px;
+ background:#1a1e28;color:#667084;border:1px solid rgba(255,255,255,.045)}
+.source.multi{width:auto;min-width:23px;padding:0 3px}
+.source.running{color:#b0c8ff;background:#1b2840}.source.waiting{color:#ffde9c;background:#46361d}
+.source.done{color:#9ce9c4;background:#163529}.source.error{color:#ffadbc;background:#3b202a}
+.pill-caret{color:#8992a3;font-size:10px;font-weight:700;flex-shrink:0}
+.pill.tiny{padding:0 9px;gap:6px}.pill.tiny .source{width:15px;height:15px;border-radius:5px;font-size:7px}.pill.tiny .sources{gap:2px}.pill.tiny .source.multi{min-width:20px;padding:0 2px}
+.panel{border-radius:21px;display:flex;flex-direction:column;gap:7px;padding:10px 10px 9px}
+.head{display:flex;align-items:center;gap:7px;height:22px;flex-shrink:0}
+.brand-icon{height:18px;width:18px;border-radius:8px;display:grid;place-items:center;color:#d2e5ff;background:#263246;font-size:11px}
+.brand{font-weight:750;font-size:12px;letter-spacing:-.15px;white-space:nowrap}.live{font-size:9px;color:#8ca0bf;letter-spacing:.5px}
+/* v0.5: the empty titlebar region is a draggable grip; controls stay clickable. */
+.drag-handle{height:25px;min-width:25px;flex:1;display:flex;align-items:center;justify-content:center;
+ border-radius:7px;cursor:-webkit-grab;cursor:grab;touch-action:none;position:relative}
+.drag-handle:hover{background:rgba(255,255,255,.055)}
+.drag-handle:active{cursor:-webkit-grabbing;cursor:grabbing;background:rgba(255,255,255,.08)}
+.drag-handle-icon{font-size:14px;color:rgba(255,255,255,.18);letter-spacing:-1px;line-height:1;pointer-events:none}
+.drag-handle:hover .drag-handle-icon{color:rgba(255,255,255,.96)}
+.actions{display:flex;align-items:center;gap:4px;margin-left:auto}
+.action{appearance:none;border:1px solid rgba(255,255,255,.07);border-radius:8px;background:#191d26;color:#c0cad9;
+ width:23px;height:23px;display:grid;place-items:center;font-size:12px;cursor:pointer;padding:0}
+.action:hover{background:#303c51;color:white}.action.pinned{color:#a9c5ff;background:#263149}
+.counters{font-size:10px;color:#8591a5;display:flex;align-items:center;gap:10px;height:13px;flex-shrink:0}
+.counter{display:flex;align-items:center;gap:4px}.count-dot{width:5px;height:5px;border-radius:50%;background:#7c8ba1}
+.counter.run .count-dot{background:var(--blue)}.counter.wait .count-dot{background:var(--amber)}.counter.done .count-dot{background:var(--green)}
+.rows{min-height:0;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;scrollbar-width:thin;scrollbar-color:#384254 transparent;padding-right:1px}
+.row{cursor:pointer;flex-shrink:0;border-radius:11px;min-height:45px;display:flex;align-items:center;gap:8px;padding:7px 9px;
+ background:rgba(255,255,255,.048);border:1px solid rgba(255,255,255,.045)}
+.row:hover{background:#252c3a;border-color:rgba(175,199,250,.16)}
+.avatar{width:23px;height:23px;border-radius:8px;background:#29364b;color:#c1d4fa;display:grid;place-items:center;font-size:10px;font-weight:750;flex-shrink:0}
+.avatar.vscode{background:#113751;color:#90d6ff}.avatar.chatgpt{background:#173b34;color:#9ae6c3}
+.row-main{min-width:0;flex:1}.task-title{font-size:11px;font-weight:660;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task-detail{font-size:9px;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:53px;flex-shrink:0}
+.task-status{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:630;color:#a0aec6;white-space:nowrap}
+.task-status.running{color:var(--blue)}.task-status.waiting{color:var(--amber)}.task-status.error{color:var(--red)}.task-status.done{color:var(--green)}
+.small-dot{height:5px;width:5px;border-radius:50%;background:currentColor}.task-status.running .small-dot{animation:breathing 1.45s infinite}
+.elapsed{font-size:9px;color:#818b9d;font-variant-numeric:tabular-nums;white-space:nowrap}
+.empty{margin:auto 6px;min-height:75px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#8b99ad;font-size:11px;text-align:center}
+.empty b{color:#c3cee0;font-weight:600}.foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 3px 0;
+ border-top:1px solid rgba(255,255,255,.055);height:16px;flex-shrink:0;font-size:9px;color:#7c8a9f}
+@keyframes breathing{50%{opacity:.45;transform:scale(.73)}}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+</style></head><body><div id="shell"><div id="island" class="island pill"></div></div>
+<script>
+'use strict';
+let state={expanded:false,pinned:false,tiny:false,muted:false,flash:null,tasks:[],visibleSources:{codex:true,vscode:true,chatgpt:true}};
+const root=document.getElementById('island');
+function send(action,id){try{window.webkit.messageHandlers.taskIslandBridge.postMessage({action,id});}catch(_){/* Preview without Hammerspoon */}}
+function e(tag,cls,txt){const v=document.createElement(tag);if(cls)v.className=cls;if(txt!==undefined)v.textContent=String(txt);return v;}
+function elapsed(ts){const s=Math.max(0,Math.floor((Date.now()-Number(ts||Date.now()))/1000));
+ if(s<60)return `${s}s`;if(s<3600)return `${Math.floor(s/60)}m ${s%60}s`;return `${Math.floor(s/3600)}h ${Math.floor(s%3600/60)}m`;}
+function taskCounts(){const c={running:0,waiting:0,done:0,error:0};for(const t of state.tasks){if(c[t.status]!==undefined)c[t.status]++;}return c;}
+function statusName(s){return ({running:'Running',waiting:'Waiting',done:'Done',error:'Error',idle:'Idle'})[s]||'Idle';}
+function srcName(s){return ({codex:'Codex',vscode:'VS Code',chatgpt:'ChatGPT'})[s]||s;}
+function srcIcon(s){return ({codex:'C',vscode:'V',chatgpt:'G'})[s]||'?';}
+function sourceStatus(src){const items=state.tasks.filter(t=>t.source===src);for(const kind of ['waiting','error','running','done','idle']){
+ if(items.some(t=>t.status===kind))return kind;}return 'idle';}
+function pill(){root.className='island pill'+(state.tiny?' tiny':'');root.replaceChildren();const c=taskCounts();
+ let main='Idle',kind='idle';
+ if(c.waiting){main=`${c.waiting} waiting`;kind='waiting';}
+ else if(c.error){main=`${c.error} error${c.error>1?'s':''}`;kind='error';}
+ else if(c.running){main=`${c.running} running`;kind='running';}
+ else if(c.done){main=`${c.done} done`;kind='done';}
+ if(state.flash && (state.flash.status==='done'||state.flash.status==='error'||state.flash.status==='waiting')){
+  const f=state.flash; main=(f.status==='done'?'✓ ':f.status==='error'?'! ':'• ')+srcName(f.source)+' '+(f.status==='waiting'?'needs you':f.status==='error'?'error':'done');kind=f.status;
+ }
+ root.append(e('span','pulse '+kind),e('span','pill-label',main));
+ const sources=e('div','sources');for(const src of ['codex','vscode','chatgpt']){
+ if(state.visibleSources && state.visibleSources[src] === false) continue;
+ const sessions=state.tasks.filter(t=>t.source===src).length;
+ const count=sessions>1?String(sessions):'';
+ const ic=e('span','source '+sourceStatus(src)+(sessions>1?' multi':''),srcIcon(src)+count);
+ ic.title=srcName(src)+': '+sessions+' session'+(sessions===1?'':'s')+' · '+statusName(sourceStatus(src));
+ sources.append(ic);}
+ root.append(sources,e('span','pill-caret','⌄'));root.onclick=()=>send('toggle');root.title='Click to pin the expanded task list';}
+function panel(){root.className='island panel';root.onclick=null;root.replaceChildren();const c=taskCounts();
+ const head=e('div','head');head.append(e('span','brand-icon','✦'),e('span','brand','Task Island'),e('span','live','LIVE'));
+ const grip=e('div','drag-handle');
+ grip.title='Hold and drag to move Task Island';
+ grip.setAttribute('aria-label','Drag Task Island');
+ grip.append(e('span','drag-handle-icon','⠿'));
+ grip.addEventListener('mousedown',ev=>{
+  if(ev.button!==0)return;
+  ev.preventDefault();ev.stopPropagation();send('dragStart');
+ });
+ grip.addEventListener('mouseup',ev=>{
+  if(ev.button===0)send('dragStop');
+ });
+ const acts=e('div','actions');
+ for(const [sym,tip,act] of [[state.pinned?'◆':'◇',state.pinned?'Unpin panel':'Pin panel','pin'],[state.muted?'◌':'♫',state.muted?'Unmute':'Mute','sound'],['⌫','Clear finished','clear'],['⌃','Collapse','toggle']]){
+  const b=e('button','action'+(act==='pin'&&state.pinned?' pinned':''),sym);b.title=tip;b.onclick=()=>send(act);acts.append(b);}
+ head.append(grip,acts);root.append(head);
+ const counters=e('div','counters');
+ for(const [key,label,cls] of [['running','Running','run'],['waiting','Waiting','wait'],['done','Done','done']]){
+  const el=e('div','counter '+cls);el.append(e('span','count-dot'),e('span','',`${c[key]} ${label}`));counters.append(el);}
+ root.append(counters);
+ const list=e('div','rows');
+ if(!state.tasks.length){const empty=e('div','empty');empty.append(e('b','','No tasks yet'),e('span','','Start Codex, VS Code or ChatGPT to see live sessions.'));list.append(empty);}
+ for(const t of state.tasks){const row=e('div','row');row.title='Open '+srcName(t.source);const av=e('span','avatar '+t.source,srcIcon(t.source));
+ const main=e('div','row-main');main.append(e('div','task-title',t.title||srcName(t.source)),e('div','task-detail',t.detail||'Task status'));
+ const right=e('div','row-right');const s=e('div','task-status '+t.status);s.append(e('span','small-dot'),e('span','',statusName(t.status)));
+ const time=e('div','elapsed',elapsed(t.startedAt));time.dataset.start=String(t.startedAt||Date.now());right.append(s,time);
+ row.append(av,main,right);row.onclick=()=>send('open',t.id);list.append(row);}
+ root.append(list);
+ const foot=e('div','foot');foot.append(e('span','',`${state.tasks.length} sessions · local`),e('span','',state.pinned?'Pinned':'Hover to preview'));root.append(foot);}
+function render(){if(state.expanded)panel();else pill();}
+window.updateTaskIsland=function(next){
+ state=next||state;
+ const alpha=Number(state.opacity);
+ root.style.setProperty('--island-opacity', String(Number.isFinite(alpha) ? Math.max(.4,Math.min(1,alpha)) : .978));
+ render();
+};
+root.addEventListener('mouseenter',()=>send('hoverIn'));
+root.addEventListener('mouseleave',()=>send('hoverOut'));
+setInterval(()=>{document.querySelectorAll('.elapsed[data-start]').forEach(el=>{el.textContent=elapsed(el.dataset.start);});},1000);
+render();
+</script></body></html>

@@ -1,0 +1,26 @@
+# Local authentication keys written by installer; never commit.
+**/token.txt
+**/config.js
+**/config.json
+
+# Backups and temporary installer staging
+*.backup-*
+*.task-island-backup-*
+*.stage-*
+*.opacity-stage-*
+
+# Python / developer caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# macOS / editor
+.DS_Store
+*.swp
+*.swo
+.vscode/settings.json
+
+# Local testing artifacts
+node_modules/
+coverage/

@@ -1,0 +1,15 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}body{width:280px;padding:14px;background:#131927;color:#f6f8ff;font:13px -apple-system,BlinkMacSystemFont,sans-serif;margin:0}
+h2{font-size:15px;margin:0 0 5px;display:flex;justify-content:space-between;align-items:center}
+small{font-weight:500;font-size:10px;color:#8ea4c7}.sub{font-size:12px;color:#afbdd3;line-height:1.5}
+button{background:#6576db;border:0;color:white;border-radius:9px;padding:10px 12px;cursor:pointer;width:100%;margin:12px 0 3px;font-weight:650}
+button.secondary{background:#252e45;margin-top:12px}button:hover{filter:brightness(1.12)}
+.hint{color:#a9bad3;font-size:11px;margin-top:6px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.ok{color:#8ce6b3}.bad{color:#ffb38f}.footer{margin-top:13px;border-top:1px solid #344052;padding-top:9px;color:#8395b0;font-size:10px;line-height:1.45}
+</style></head><body>
+<h2>✦ Task Island <small id="version">v0.3.1</small></h2>
+<div class="sub">Monitor each ChatGPT tab independently on your Mac.</div>
+<button id="check-page">Check this ChatGPT tab</button><div id="page-result" class="hint">Open chatgpt.com in this tab, then check the webpage connection.</div>
+<button id="test" class="secondary">Test local notification</button><div id="result" class="hint">Tests Hammerspoon only — not webpage tracking.</div>
+<div class="footer">Local only · No chat contents are read or sent. Refresh ChatGPT pages after reloading this extension.</div>
+<script src="popup.js"></script></body></html>

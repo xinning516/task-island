@@ -1,0 +1,15 @@
+{
+  "name": "task-island-monitor",
+  "displayName": "Task Island Monitor",
+  "description": "Monitor VS Code tasks and integrated terminal commands in Task Island (local-only).",
+  "version": "0.1.0",
+  "publisher": "localtaskisland",
+  "license": "MIT",
+  "engines": {"vscode": "^1.93.0"},
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js",
+  "contributes": {"commands": [{"command":"taskIsland.test","title":"Task Island: Test Connection"}]},
+  "extensionKind": ["ui"],
+  "capabilities": {"untrustedWorkspaces": {"supported": true}}
+}

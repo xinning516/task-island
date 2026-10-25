@@ -1,0 +1,55 @@
+name: smoke-tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: smoke-tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Lua syntax checker
+        run: |
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew list lua >/dev/null 2>&1 || brew install lua
+          else
+            sudo apt-get update -qq
+            sudo apt-get install -y lua5.4
+          fi
+      - name: Python installer and event tests
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: JavaScript and VS Code lifecycle tests
+        run: |
+          for file in chrome-extension/*.js vscode-extension/extension.js; do node --check "$file"; done
+          python3 - <<'PY'
+          from pathlib import Path
+          html = Path('hammerspoon/dashboard.html').read_text()
+          Path('/tmp/task-island-ui.js').write_text(html.split('<script>', 1)[1].split('</script>', 1)[0])
+          PY
+          node --check /tmp/task-island-ui.js
+          node tests/test_vscode_events.js
+      - name: Lua syntax check
+        run: |
+          if command -v luac >/dev/null 2>&1; then
+            luac -p hammerspoon/task_island.lua
+          else
+            luac5.4 -p hammerspoon/task_island.lua
+          fi
+      - name: macOS smoke test note
+        if: runner.os == 'macOS'
+        run: echo 'macOS installer and syntax verified; UI and Accessibility permissions require a real Mac interactive test.'

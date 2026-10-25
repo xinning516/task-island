@@ -4,7 +4,7 @@
 
 > **Community prototype — not affiliated with OpenAI, ChatGPT, Codex, Apple, or Hammerspoon.** The overlay is a floating window, *not* a native macOS notch replacement. Features were code-tested; macOS compatibility depends on your setup.
 
-[**Download v0.5.0-beta**](https://github.com/xinning516/task-island/releases/download/v0.5.0-beta/Task-Island-v0.5.0-beta.zip) · [Releases](https://github.com/xinning516/task-island/releases)
+[**Download v0.5.0-beta**](https://github.com/xinning516/task-island/releases/download/v0.5.0-beta/Task-Island-v0.5.0-beta.1.zip) · [Releases](https://github.com/xinning516/task-island/releases)
 
 ![Task Island compact and expanded preview](assets/task-island-screenshot.png)
 
@@ -36,7 +36,7 @@ You do **not** need Homebrew. Download Hammerspoon from its official website if 
 
 ## Download and install
 
-Download the [v0.5.0-beta ZIP](https://github.com/xinning516/task-island/releases/download/v0.5.0-beta/Task-Island-v0.5.0-beta.zip), or use GitHub's **Code → Download ZIP**. The archive contains source code and an installer, not a signed `.app`; Hammerspoon is required.
+Download the [v0.5.0-beta ZIP](https://github.com/xinning516/task-island/releases/download/v0.5.0-beta/Task-Island-v0.5.0-beta.1.zip), or use GitHub's **Code → Download ZIP**. The archive contains source code and an installer, not a signed `.app`; Hammerspoon is required.
 
 
 1. Download or clone this repository, then inspect the install script before running it.
